@@ -306,16 +306,28 @@ if __name__ == '__main__':
 
 	view = Connect4Viewer(game=game)
 	view.initialize()
+	ai_goes_first = bool(random.randint(0, 1))
+	nb_placed = 0
 
 	running = True
 	while running:
-		for event in pygame.event.get():
-			if event.type == pygame.QUIT:
-				running = False
-			if event.type == pygame.MOUSEBUTTONUP and event.button == 1:
-				if game.get_win() is None:
-					game.place(pygame.mouse.get_pos()[0] // SQUARE_SIZE)
-				else:
-					game.reset_game()
+		if nb_placed % 2 == ai_goes_first:
+			if game.get_win() is None:  # if it is not won, ai plays
+				game.place(random.randint(0, 700) // SQUARE_SIZE)  # This is where the AI chooses its play
+				nb_placed += 1
+			else:  # Otherwise, skip turn so that the user can see end screen
+				nb_placed += 1
+		else:
+			for i, event in enumerate(pygame.event.get()):
+				if event.type == pygame.QUIT:
+					running = False
+				if event.type == pygame.MOUSEBUTTONUP and event.button == 1:
+					if game.get_win() is None:
+						placement = game.place(pygame.mouse.get_pos()[0] // SQUARE_SIZE)
+						if placement is not None:  # Still player's turn if placement fails
+							nb_placed += 1
+					else:
+						game.reset_game()
+
 
 	pygame.quit()
